@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameController : MonoBehaviour {
@@ -12,12 +13,20 @@ public class GameController : MonoBehaviour {
     public float waveWait;
 
     public Text scoreText;
+    public Text restartText;
+    public Text gameOverText;
     private int score;
+    private bool gameOver;
+    private bool restart;
 
     void Start() {
         score = 0;
 
-        // scoreText = GetComponent<Text>();
+        gameOver = false;
+        restart = false;
+
+        gameOverText.text = "";
+        restartText.text = "";
 
         UpdateScore();
 
@@ -27,6 +36,20 @@ public class GameController : MonoBehaviour {
     public void AddScore(int newScoreValue) {
         score += newScoreValue;
         UpdateScore();
+    }
+
+    public void GameOver() {
+        gameOverText.text = "Game Over";
+        gameOver = true;
+    }
+
+    void Update() {
+        if(restart) {
+            if(Input.GetKeyDown(KeyCode.R)) {
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                // Application.LoadLevel(Application.loadedLevel);
+            }
+        }
     }
 
     void UpdateScore() {
@@ -41,9 +64,15 @@ public class GameController : MonoBehaviour {
                 createHazard();
                 yield return new WaitForSeconds(spawnWait);
             }
-        }
 
-        yield return new WaitForSeconds(waveWait);
+            yield return new WaitForSeconds(waveWait);
+
+            if (gameOver) {
+                restartText.text = "Press 'R' to Restart";
+                restart = true;
+                break;
+            }
+        }
     }
 
     private GameObject createHazard() {
